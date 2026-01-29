@@ -5,7 +5,7 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// 暫時儲存驗證碼
+// 暫時儲存驗證碼 (實際開發建議用資料庫)
 let tempCodes = {}; 
 
 // --- Gmail 郵件設定 ---
@@ -68,6 +68,7 @@ app.post('/send-verify', (req, res) => {
 // 5. 檢查驗證碼是否正確
 app.post('/check-verify', (req, res) => {
     const { email, userCode } = req.body;
+    
     if (tempCodes[email] && tempCodes[email].toString() === userCode) {
         delete tempCodes[email]; 
         res.send(`${style}<div class="card text-center"><div class="logo" style="color:green;">✔️ 驗證成功</div><p class="mb-4">身分確認完成！現在您可以繼續下一步。</p><a href="/" class="btn btn-primary w-100">返回首頁</a></div>`);
@@ -76,6 +77,5 @@ app.post('/check-verify', (req, res) => {
     }
 });
 
-// --- 這部分最重要，確保這三行都有被複製到 ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`網站已啟動，連接埠：${PORT}`));
+app.listen(PORT, () => console.log(`網站已啟動：${PORT}`));
