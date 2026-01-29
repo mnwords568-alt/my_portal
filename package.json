@@ -1,0 +1,10 @@
+{
+  "name": "simple-portal",
+  "version": "1.0.0",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.7",
+    "body-parser": "^1.20.2"
+  }
+}
