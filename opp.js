@@ -5,7 +5,6 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// 暫時儲存驗證資料
 let tempCodes = {}; 
 
 const GMAIL_USER = process.env.GMAIL_USER;
@@ -16,133 +15,132 @@ const transporter = nodemailer.createTransport({
     auth: { user: GMAIL_USER, pass: GMAIL_PASS }
 });
 
-// --- 統一科技感風格 (深色背景 + 藍色霓虹) ---
+// --- 黑白極簡科技風格 ---
 const style = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { 
-            background: radial-gradient(circle at center, #0a0a12 0%, #000000 100%); 
+            background-color: #000; 
             height: 100vh; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-family: 'Orbitron', sans-serif; 
+            font-family: 'Courier New', Courier, monospace; 
             margin: 0;
-            color: #00d4ff;
+            color: #fff;
         }
         .card { 
-            background: rgba(10, 10, 15, 0.9); 
-            backdrop-filter: blur(20px); 
-            border-radius: 20px; 
+            background: #000; 
+            border: 2px solid #fff; 
+            border-radius: 0px; /* 方正邊角更有工業感 */
             padding: 40px; 
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); 
+            box-shadow: 10px 10px 0px #fff; /* 復古科技感陰影 */
             width: 100%; 
             max-width: 480px; 
-            border: 1px solid rgba(0, 212, 255, 0.3); 
         }
         .btn-primary { 
-            background: linear-gradient(90deg, #00d4ff 0%, #0072ff 100%); 
+            background: #fff; 
             border: none; 
-            padding: 12px; 
-            border-radius: 10px; 
-            font-weight: bold; 
             color: #000;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            padding: 12px; 
+            border-radius: 0px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
         }
         .btn-primary:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.6);
-            color: #fff;
+            background: #ccc; 
+            color: #000;
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px #888;
         }
         .form-control, .form-select { 
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: #000;
+            border: 1px solid #fff;
             color: #fff;
-            border-radius: 10px; 
+            border-radius: 0px; 
             padding: 12px; 
         }
         .form-control:focus, .form-select:focus {
-            background: rgba(255, 255, 255, 0.1);
+            background: #111;
             color: #fff;
-            border-color: #00d4ff;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            border-color: #fff;
+            box-shadow: 0 0 10px #fff;
         }
         .logo { 
-            font-size: 28px; 
+            font-size: 24px; 
             font-weight: bold; 
             text-align: center; 
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 5px;
             margin-bottom: 30px;
-            text-shadow: 0 0 10px #00d4ff;
+            border-bottom: 2px solid #fff;
+            padding-bottom: 10px;
         }
-        .label-sm { font-size: 0.8rem; color: #888; margin-bottom: 5px; margin-left: 5px; }
-        .back-link { color: #555; text-decoration: none; font-size: 0.9rem; transition: 0.3s; background: none; border: none; }
-        .back-link:hover { color: #00d4ff; text-shadow: 0 0 5px #00d4ff; }
+        .label-sm { font-size: 0.75rem; color: #fff; text-transform: uppercase; margin-bottom: 5px; }
+        .back-link { color: #888; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; background: none; border: none; }
+        .back-link:hover { color: #fff; text-decoration: underline; }
         ::placeholder { color: #444 !important; }
+        hr { border-top: 1px solid #fff; opacity: 1; }
     </style>
 `;
 
-// 1. 首頁 (登入)
+// 1. 首頁
 app.get('/', (req, res) => {
-    res.send(`${style}<div class="card"><div class="logo">System Access</div><form action="/login" method="POST"><div class="mb-3"><input type="email" name="email" class="form-control" placeholder="User ID" required></div><div class="mb-4"><input type="password" name="password" class="form-control" placeholder="Password" required></div><button type="submit" class="btn btn-primary w-100 mb-3">Initialize Login</button></form><div class="text-center"><a href="/register-page" class="back-link mx-2">New Identity</a> | <a href="/forgot-page" class="back-link mx-2">Recover Access</a></div></div>`);
+    res.send(`${style}<div class="card"><div class="logo">LOGIN_REQUIRED</div><form action="/login" method="POST"><div class="mb-3"><input type="email" name="email" class="form-control" placeholder="USER_ID" required></div><div class="mb-4"><input type="password" name="password" class="form-control" placeholder="PASSWORD" required></div><button type="submit" class="btn btn-primary w-100 mb-3">EXECUTE_LOGIN</button></form><div class="text-center"><a href="/register-page" class="back-link mx-2">NEW_IDENTITY</a> | <a href="/forgot-page" class="back-link mx-2">RECOVERY</a></div></div>`);
 });
 
-// 2. 註冊頁面 (含自訂密碼)
+// 2. 註冊頁面
 app.get('/register-page', (req, res) => {
     res.send(`
         ${style}
         <div class="card">
-            <div class="logo">Register Identity</div>
+            <div class="logo">ID_GENERATION</div>
             <form action="/send-verify" method="POST">
                 <input type="hidden" name="type" value="註冊">
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <div class="label-sm">姓名</div>
-                        <input type="text" name="username" class="form-control" placeholder="Name" required>
+                        <div class="label-sm">Name</div>
+                        <input type="text" name="username" class="form-control" placeholder="NAME" required>
                     </div>
                     <div class="col-6">
-                        <div class="label-sm">生日</div>
+                        <div class="label-sm">Birth</div>
                         <input type="date" name="birthday" class="form-control" required style="color-scheme: dark;">
                     </div>
                 </div>
                 <div class="mb-3">
-                    <div class="label-sm">設定登入密碼</div>
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                    <div class="label-sm">Set Password</div>
+                    <input type="password" name="password" class="form-control" placeholder="SECRET_KEY" required>
                 </div>
                 <div class="mb-4">
-                    <div class="label-sm">電子信箱</div>
-                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                    <div class="label-sm">Email Address</div>
+                    <input type="email" name="email" class="form-control" placeholder="EMAIL" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 mb-3">Generate Auth Code</button>
+                <button type="submit" class="btn btn-primary w-100 mb-3">GENERATE_OTP</button>
             </form>
-            <div class="text-center"><button onclick="history.back()" class="back-link">← Abort Mission</button></div>
+            <div class="text-center"><button onclick="history.back()" class="back-link">← ABORT</button></div>
         </div>
     `);
 });
 
-// 3. 忘記密碼頁面
-app.get('/forgot-page', (req, res) => {
-    res.send(`${style}<div class="card"><div class="logo">Access Recovery</div><p class="text-center text-muted mb-4 small">Enter ID to receive security code</p><form action="/send-verify" method="POST"><input type="hidden" name="type" value="重設密碼"><div class="mb-4"><input type="email" name="email" class="form-control" placeholder="Registered Email" required></div><button type="submit" class="btn btn-primary w-100 mb-3">Request Code</button></form><div class="text-center"><button onclick="history.back()" class="back-link">← Return</button></div></div>`);
-});
-
-// 4. 寄送與驗證邏輯 (包含密碼暫存)
+// 3. 寄送與驗證 (包含 502 排查與環境變數引用)
 app.post('/send-verify', (req, res) => {
     const { email, type, username, birthday, password } = req.body;
     const code = Math.floor(100000 + Math.random() * 900000);
-    tempCodes[email] = { code: code, userData: { username: username || 'Agent', birthday, password } };
+    tempCodes[email] = { code: code, userData: { username: username || 'USER', birthday, password } };
 
     const mailOptions = {
-        from: GMAIL_USER,
+        from: GMAIL_USER, // 請確保 Render Environment Variables 已設定
         to: email,
-        subject: `[SECURITY] Auth Code: ${code}`,
-        text: `Auth Code: ${code}`
+        subject: `[SYSTEM] OTP_CODE: ${code}`,
+        text: `Your verification code is: ${code}`
     };
 
     transporter.sendMail(mailOptions, (err) => {
-        if (err) return res.send(`Encryption Error: ${err.message}`);
-        res.send(`${style}<div class="card"><div class="logo">Verification</div><p class="text-center text-muted small">Code dispatched to ${email}</p><form action="/check-verify" method="POST"><input type="hidden" name="email" value="${email}"><div class="mb-4"><input type="text" name="userCode" class="form-control text-center" style="font-size:2rem; letter-spacing:10px; color:#00d4ff;" maxlength="6" required></div><button type="submit" class="btn btn-primary w-100 mb-3">Verify Identity</button></form></div>`);
+        if (err) return res.send(`SYSTEM_ERROR: ${err.message}`);
+        res.send(`${style}<div class="card"><div class="logo">VERIFICATION</div><p class="text-center small">CODE_DISPATCHED_TO: ${email}</p><form action="/check-verify" method="POST"><input type="hidden" name="email" value="${email}"><div class="mb-4"><input type="text" name="userCode" class="form-control text-center" style="font-size:2rem; letter-spacing:10px;" maxlength="6" required></div><button type="submit" class="btn btn-primary w-100 mb-3">VALIDATE</button></form></div>`);
     });
 });
 
@@ -152,11 +150,11 @@ app.post('/check-verify', (req, res) => {
     if (record && record.code.toString() === userCode) {
         const user = record.userData;
         delete tempCodes[email];
-        res.send(`${style}<div class="card text-center"><div class="logo" style="color:#00ff88;">Authorized</div><p>Welcome back, ${user.username}</p><p class="text-muted small">ID: ${email}<br>Security: Confirmed</p><hr><a href="/" class="btn btn-primary w-100">Enter Terminal</a></div>`);
+        res.send(`${style}<div class="card text-center"><div class="logo">AUTHORIZED</div><p>WELCOME_AGENT: ${user.username}</p><p class="small">ID: ${email}<br>STATUS: VERIFIED</p><hr><a href="/" class="btn btn-primary w-100">ENTER_DASHBOARD</a></div>`);
     } else {
-        res.send(`${style}<div class="card text-center"><div class="logo" style="color:#ff4b2b;">Denied</div><p>Invalid Authentication Code</p><button onclick="history.back()" class="btn btn-outline-info w-100">Retry</button></div>`);
+        res.send(`${style}<div class="card text-center"><div class="logo" style="border-color: #800;">DENIED</div><p>INVALID_CREDENTIALS</p><button onclick="history.back()" class="btn btn-primary w-100">RETRY</button></div>`);
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Cyber System Active on Port ${PORT}`));
+app.listen(PORT, () => console.log(`SYSTEM_ONLINE_PORT_${PORT}`));
